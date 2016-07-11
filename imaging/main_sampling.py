@@ -24,13 +24,17 @@ def main():
 
     data = utils.loadDict(proj_dir,nii_data_name) # load data
     data = {} if data == None else data
-    imgs_data = np.array(nio.loadNii(utils.joinpath(nii_dir,settings['todo_dirlist'][0])))
-    mean = np.mean(imgs_data)
-    std = np.std(imgs_data)
-    thrss = np.array([ mean-std, mean+std, np.amax(imgs_data) ])
-    settings['thrss'] = []
-    for t in thrss:
-        settings['thrss'] += [`t`]
+    if not 'thrss' in settings.keys():
+        imgs_data = np.array(nio.loadNii(utils.joinpath(nii_dir,settings['todo_dirlist'][0])))
+        mean = np.mean(imgs_data)
+        std = np.std(imgs_data)
+        thrss = np.array([ mean-std, mean+std, np.amax(imgs_data) ])
+        settings['thrss'] = []
+        for t in thrss:
+            settings['thrss'] += [`t`]
+    else
+        for t in settings['thrss']:
+            thrss += [float(t)]
     sampler = mdv.sampler(patch_side, thrss)
     utils.saveDict(proj_dir,nii_data_name,data)
     utils.saveDict(proj_dir,nii_settings_name,settings)
