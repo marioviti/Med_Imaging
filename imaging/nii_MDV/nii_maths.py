@@ -56,73 +56,10 @@ def smooth(n, precision):
         raise precisionError("precision must be percentage.")
     return math.trunc(n/precision)*precision
 
-def smoother(precision):
-    prec = precision
-    smoother = lambda x : smooth(x,precision)
-    return smoother
-
-class histogram:
-    """
-        Produce histogram
-    """
-    def __init__(self, X=[] ,precision=1):
-        self.__X = X
-        self.__Y = []
-        self.__N = 0
-        self.__precision = precision
-        if not self.X == []:
-            self.__count()
-
-    @property
-    def X(self):
-        return self.__X
-
-    @property
-    def Y(self):
-        return self.__Y
-
-    def __count(self):
-        smther = smoother(self.__precision)
-        self.__X = sorted (map(smther,self.__X.ravel()))
-        prec = None
-        i = -1
-        for x in self.__X:
-            if not x == prec:
-                i+=1
-                self.__Y += [1]
-                self.__N += 1
-            else:
-                self.__Y[i] += 1
-                self.__N += 1
-            prec = x
-        set_X = []
-        prec = None
-        for x in self.__X:
-            if not x == prec:
-                set_X += [x]
-            prec = x
-        self.__X = set_X
-
-    def serialize(self):
-        serializable = {}
-        serializable['X'] = map(str,self.__X)
-        serializable['Y'] = self.__Y
-        serializable['N'] = self.__N
-        serializable['precision'] = `self.__precision`
-        return serializable
-
-    def deserialize(self, serializable):
-        self.__X = serializable['X']
-        self.__Y = map(float,serializable['X'])
-        self.__N = serializable['N']
-        self.__precision = float(serializable['precision'])
-
-
 class binnedHistogram:
     """
     produce a binned histogram.
     """
-
     def __init__(self, precision=1, fun=lambda x:x, mapkv={}):
         self.__precision = precision
         self.__fun = fun
