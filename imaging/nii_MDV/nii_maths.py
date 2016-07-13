@@ -39,34 +39,24 @@ def makeFreqHistogram(samples, precision=1, fun=lambda x:x):
             freqHistogram[smoothed] = [patt]
     return freqHistogram
 
-def redifineFreqHistogram(freqHistogram, precision):
-    if precision == 1:
-        return freqHistogram
-    newfreqHistogram = {}
-    for freq,pattlist in freqHistogram.items():
-        smoothed = smooth(freq,precision)
-        if smoothed in freqHistogram:
-            newfreqHistogram[smoothed] += pattlist
-        else:
-            newfreqHistogram[smoothed] = pattlist
-    return newfreqHistogram
-
 def smooth(n, precision):
     if precision > 1:
         raise precisionError("precision must be percentage.")
-    return math.trunc(n/precision)*precision
+    return math.trunc(n/precision)*precision if precision < 1 else n
 
 class binnedHistogram:
     """
-    produce a binned histogram.
+    produce a binned histogram, mapkv is a keyvalue map structured as
+    { observation : occurrences , ... , }
     """
     def __init__(self, precision=1, fun=lambda x:x, mapkv={}):
         self.__precision = precision
         self.__fun = fun
-        self.__map = mapkv
-        mapp = sorted(self.__map.items(), key=lambda x:x[0])
-        self.__X = [i for (i,j) in mapp]
-        self.__Y = [len(j) for (i,j) in mapp]
+        self.makebin(mapkv)
+        #self.__map = mapkv
+        #mapp = sorted(self.__map.items(), key=lambda x:x[0])
+        #self.__X = [i for (i,j) in mapp]
+        #self.__Y = [len(j) for (i,j) in mapp]
 
     @property
     def fun(self):
@@ -99,13 +89,6 @@ class binnedHistogram:
 
     def makebin(self, sample):
         self.__map = makeFreqHistogram(sample, self.__precision, self.__fun)
-        mapp = sorted(self.__map.items(), key=lambda x:x[0])
-        self.__X = [i for (i,j) in mapp]
-        self.__Y = [len(j) for (i,j) in mapp]
-
-    def remakebin(self, precision):
-        self.__precision = precision
-        self.__map = redifineFreqHistogram(self.__map, self.__precision, self.__fun)
         mapp = sorted(self.__map.items(), key=lambda x:x[0])
         self.__X = [i for (i,j) in mapp]
         self.__Y = [len(j) for (i,j) in mapp]
