@@ -47,16 +47,14 @@ def smooth(n, precision):
 class binnedHistogram:
     """
     produce a binned histogram, mapkv is a keyvalue map structured as
-    { observation : occurrences , ... , }
+    { observation : occurrences , ... , }. Parameter float array X is the sorted
+    list of frequencies, float array Y is the count of patterns with respect to X
+    dictionary MAP is the mapping from X to a list of samples.
     """
     def __init__(self, precision=1, fun=lambda x:x, mapkv={}):
         self.__precision = precision
         self.__fun = fun
-        self.makebin(mapkv)
-        #self.__map = mapkv
-        #mapp = sorted(self.__map.items(), key=lambda x:x[0])
-        #self.__X = [i for (i,j) in mapp]
-        #self.__Y = [len(j) for (i,j) in mapp]
+        self.makebin(mapkv, self.__precision, self.__fun)
 
     @property
     def fun(self):
@@ -87,8 +85,8 @@ class binnedHistogram:
          """
          return self.__map
 
-    def makebin(self, sample):
-        self.__map = makeFreqHistogram(sample, self.__precision, self.__fun)
+    def makebin(self, sample, precision, fun):
+        self.__map = makeFreqHistogram(sample, precision, fun)
         mapp = sorted(self.__map.items(), key=lambda x:x[0])
         self.__X = [i for (i,j) in mapp]
         self.__Y = [len(j) for (i,j) in mapp]

@@ -1,0 +1,5 @@
+proj_dir = "."
+nii_dir = "./brainNii"
+nii_settings_name = "settings.json"
+nii_patterns_name = "patterns.json"
+nii_histogram_name = "histogram.json"
