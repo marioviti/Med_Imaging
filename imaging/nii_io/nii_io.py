@@ -7,8 +7,17 @@ def allPositive(array):
     return array + abs(array.min())
 
 def loadNii(niiImagePath, c_contiguos=True, canonical=False):
+    """
+    returns (header, array)
+    note: not using the nibabel.arrayproxy technique
+    """
     image = nib.load(niiImagePath)
-    return allPositive( niiToArray(image, c_contiguos, canonical) )
+    return (image.header, image.affine, allPositive( niiToArray(image, c_contiguos, canonical)))
+
+def saveNii(niiImagePath, header, affine, array_data):
+    #array_img = nib.Nifti1Image(array_data/float(header['scl_slope']), affine)
+    array_img = nib.Nifti1Image(array_data, affine)
+    nib.save(array_img, niiImagePath)
 
 def getNumpyDataFormat(img):
     headerDataTypelabel = img.header['datatype']
@@ -34,4 +43,4 @@ def niiToArray(niiImg, c_contiguos=True, canonical=False):
     INroughData = aligendImage.get_data()
     if c_contiguos and not INroughData.flags['C_CONTIGUOUS']:
         INroughData = INroughData.T
-    return INroughData * scl_slope + scl_inter
+    return INroughData * scl_slope
