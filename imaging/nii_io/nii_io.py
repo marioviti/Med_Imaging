@@ -16,7 +16,8 @@ def loadNii(niiImagePath, c_contiguos=True, canonical=False):
 
 def saveNii(niiImagePath, header, affine, array_data):
     #array_img = nib.Nifti1Image(array_data/float(header['scl_slope']), affine)
-    array_img = nib.Nifti1Image(array_data, affine)
+    #array_img = nib.Nifti1Image(array_data, affine)
+    array_img = nib.Nifti1Image(array_data, affine, header)
     nib.save(array_img, niiImagePath)
 
 def getNumpyDataFormat(img):

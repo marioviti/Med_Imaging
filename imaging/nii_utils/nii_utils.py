@@ -10,6 +10,8 @@ def joinpath(dirname, filename):
     return os.path.join(dirname, filename)
 
 def getdirlist(dirname, exts):
+    if dirname=="" or exts == []:
+        return []
     if not os.path.isdir(dirname):
         return []
     pre_listofdir = os.listdir(dirname)

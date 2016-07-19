@@ -4,10 +4,10 @@ if  os.environ['PWD'] not in os.environ['PATH']:
     os.environ['PATH'] += ":" + os.environ['PWD']
 import nii_utils as utils
 
-def createSettings(path, extensions):
+def createSettings(todo_dirlist="", extensions=[]):
     settingsData = {
-        'todo_dirlist' : utils.getdirlist(path,extensions),
-        'done_dirlist' : []
+        'todo_dirlist' : utils.getdirlist(todo_dirlist,extensions),
+        'done_dirlist' : [],
         }
     return settingsData
 
