@@ -1,1 +1,1 @@
-{"todo_dirlist": ["CONV-50.nii", "CONV-30.nii"], "done_dirlist": ["AD-7.nii", "CTRL-10.nii", "NOCONV-50.nii", "NOCONV-10.nii", "AD-1.nii", "CTRL-5.nii"]}
+{"todo_dirlist": ["AD-7.nii"], "done_dirlist": ["AD-1.nii", "CTRL-10.nii", "CONV-30.nii", "NOCONV-50.nii", "NOCONV-10.nii", "CTRL-5.nii"], "thress": {"AD-7.nii": [0.1253376906090581, 0.32831875008302286, 0.5264969822905372, 1.0485159228165726]}}
