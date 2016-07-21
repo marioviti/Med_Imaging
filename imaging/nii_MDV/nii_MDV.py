@@ -11,50 +11,102 @@ import numpy as np
 import nii_maths
 import nii_utils as utils
 
-class filter:
+class Compressor:
 
-    def __init__(self):
-        self.__W = None
-        self.__N = None
+    def __init__(self, sampler, patternBank):
+        assert isinstance(mxmtr,Sampler), "must pass a Sampler."
+        self.__sampler = sampler
+        self.__patternbank = patternBank
+
+    def compress3D(self, image, verbose=False):
+        if not len(image) == 3:
+            raise ValueError("Must provide 3D image")
+        patchside = self.__sampler.patchside
+        bitDepth = self.__sampler.bitDepth
+        thrss = self.__sampler.bitDepth
+        if verbose:
+            print('start')
+        x, y, z = image.shape
+        imageCopy = np.reshape(nii_maths.thressholding(image.ravel(), self.__thrss),(x,y,z))
+        blankimageCopy = np.zeros(image.shape)
+        i=j=k=0
+        for i in range(0, x - self.__patchside + 1):
+            for j in range(0, y - self.__patchside + 1):
+                for k in range(0, z - self.__patchside + 1):
+                    key = nii_maths.patternKey(self.__bitDepth,
+                        imageCopy[i:i + self.__patchside, j:j + self.__patchside, k:k + self.__patchside] )
+                    if key in self.__patternbank:
+                        blankimageCopy[i:i + self.__patchside, j:j + self.__patchside, k:k + self.__patchside] = imageCopy[i:i + self.__patchside, j:j + self.__patchside, k:k + self.__patchside]
+            if verbose:
+                print ("\rprogress: ", int((i/float(x - self.__patchside))*100), "%" , end="")
+        if verbose:
+            print ('\nended')
+        return blankimageCopy
+
+    @property
+    def sampler(self):
+        return self.__sampler
+
+
+class Maximizator:
+
+    def __init__(self,W,N):
+        self.__W = W
+        self.__N = N
         self.patternBank = None
 
     @property
     def patternBank(self):
         return self.__patternbank
 
-    def apply(self, bh, W, N):
+    def maxim(self, bh, W=None, N=None):
         """
         apply a feature reduction filter based on a entropy maximization with linear constratint of W weighet frequency, and N spatial constratint
         """
-        self.__W = W
-        self.__N = N
+        if not W == None:
+            self.__W = W
+        if not N == None:
+            self.__N = N
         patternBank = {}
         assert isinstance(bh,nii_maths.binnedHistogram), "must pass a BinnedHistogram."
         offset = bh.precision
         X = bh.X
         Y = bh.Y
         exL, exR = (X[0] , X[len(X)-1])
-        Il = Ir = cusp = math.log(W/float(N))
+        Il = Ir = cusp = math.log(self.__W/float(self.__N))
         selL = selR = count = 0
-        while count < N and not (Il<exL and Ir>exR):
+        while count < self.__N and not (Il<exL and Ir>exR):
             Il = Il - offset
             Ir = Ir + offset
             i, j = selL, selR = (bisect.bisect_right(X,Il), bisect.bisect_right(X,Ir))
-            while i < selR and count < N:
+            while i < selR and count < self.__N:
                 count += Y[i]
                 patternBank[X[i]] = bh.MAP[X[i]]
                 i += 1
             del X[selL:i+1]
             del Y[selL:i+1]
-        self.__patternbank = nii_maths.binnedHistogram(bh.precision,bh.fun,patternBank)
+        #self.__patternbank = nii_maths.binnedHistogram(bh.precision,bh.fun,patternBank)
+        self.__patternbank = patternBank
         return self.__patternbank
 
-class sampler:
+class Sampler:
 
     def __init__(self, patchside, thrss):
         self.__patchside = patchside
         self.__thrss = thrss
         self.__bitDepth = int(math.log(len(self.__thrss)+1,2))
+
+    @property
+    def patchside(self):
+        return self.__patchside
+
+    @property
+    def thrss(self):
+        return self.__thrss
+
+    @property
+    def bitDepth(self):
+        return self.__bitDepth
 
     def sample3Din2Dslices(self, image, direction=0, verbose=False):
         x, y, z = image.shape

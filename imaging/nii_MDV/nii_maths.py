@@ -50,11 +50,17 @@ class binnedHistogram:
     { observation : occurrences , ... , }. Parameter float array X is the sorted
     list of frequencies, float array Y is the count of patterns with respect to X
     dictionary MAP is the mapping from X to a list of samples.
+    Alternatively this class can rebuild the binned histogram from the MAP, by
+    passing the correct mapkv and setting isMap=True.
     """
-    def __init__(self, precision=1, fun=lambda x:x, mapkv={}):
+    def __init__(self, precision=1, fun=lambda x:x, mapkv={}, isMap=False):
         self.__precision = precision
         self.__fun = fun
-        self.makebin(mapkv, self.__precision, self.__fun)
+        if not isMap:
+            self.__map = makeFreqHistogram(mapkv, precision, fun)
+        else:
+            self.__map = mapkv
+        self.makebin()
 
     @property
     def fun(self):
@@ -85,8 +91,7 @@ class binnedHistogram:
          """
          return self.__map
 
-    def makebin(self, sample, precision, fun):
-        self.__map = makeFreqHistogram(sample, precision, fun)
+    def makebin(self):
         mapp = sorted(self.__map.items(), key=lambda x:x[0])
         self.__X = [i for (i,j) in mapp]
         self.__Y = [len(j) for (i,j) in mapp]
